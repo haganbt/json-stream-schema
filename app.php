@@ -60,6 +60,18 @@ class EventHandler implements DataSift_IStreamConsumerEventHandler
   $master = $eventHandler->getMaster();
 
 
+
+
+while(1){
+    sleep(10);
+    writeToFile();
+}
+
+
+function writeToFile(){
+	file_put_contents('file.txt', $this->master);
+}
+
   
   
   
