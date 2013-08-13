@@ -5,14 +5,14 @@ if (function_exists('date_default_timezone_set')) {
 }
 
 
-
-
-
 class EventHandler implements DataSift_IStreamConsumerEventHandler
 {
   	
-	protected $master = array();
+	protected $master 	= array();
+	protected $i 		= 0; // Interaction count
+	protected $count 	= 0; // Save to log count
 	
+		
 	public function getMaster(){
 		return $this->master;
 	}
@@ -22,12 +22,23 @@ class EventHandler implements DataSift_IStreamConsumerEventHandler
     {
     	  
 	  try{
+	  	
+		$this->i++;		
+		echo "Processing interaction: $this->i\r";
 		
 		if(is_array($interaction) === true && !empty($interaction)){
+			$this->count ++;
 			$this->master =  array_merge_recursive_distinct($this->master, $interaction);	
 		}
 		
-		echo json_encode($this->master) . "\n";		
+		//echo json_encode($this->master) . "\n";
+		
+		// Save to file vevery n interactions
+		if($this->count === 100){
+			echo "\nSaving deffinition to file.\n";
+			writeToFile(json_encode($this->master));
+			$this->count = 0;
+		}		
 		
 	  } catch (Exception $e){
 		 throw new Exception( 'ERROR:', 0, $e);
@@ -48,7 +59,7 @@ class EventHandler implements DataSift_IStreamConsumerEventHandler
   }
 
   // Create the user
-  $user = new DataSift_User('<user>', '<api_key>');
+  $user = new DataSift_User('<username>', '<api_key>');
   // Create a definition looking for the word "datasift"
   $def = $user->createDefinition('interaction.sample < 0.1');
   // Get an HTTP stream consumer for that definition
@@ -62,21 +73,16 @@ class EventHandler implements DataSift_IStreamConsumerEventHandler
 
 
 
-while(1){
-    sleep(10);
-    writeToFile();
+
+
+/*
+ * Overwrite file contents.
+ */ 
+function writeToFile($data){
+	file_put_contents('out.json', $data);
 }
 
 
-function writeToFile(){
-	file_put_contents('file.txt', $this->master);
-}
-
-  
-  
-  
-  
-  
 /*
  * array_merge_recursive does indeed merge arrays, but it converts values with duplicate
  * keys to arrays rather than overwriting the value in the first array with the duplicate
