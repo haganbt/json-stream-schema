@@ -1,4 +1,7 @@
-# json-schema-from-stream
+
+### WARNING: This has now been superseded by this project: https://github.com/haganbt/datasift-json-schema
+
+## json-schema-from-stream
 
 Build a JSON object from a DataSift HTTP stream.
 
